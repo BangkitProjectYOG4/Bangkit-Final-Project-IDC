@@ -15,8 +15,3 @@ In this model we use Convolutional Neural Network (CNN). We use Convolution 2D w
 
 - Accuracy : 0.84
 - Validation Accuracy : 0.84
-
-## Web App
-
-
-## Reference Paper
