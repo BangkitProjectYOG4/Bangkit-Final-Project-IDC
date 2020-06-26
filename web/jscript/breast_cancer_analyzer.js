@@ -19,8 +19,9 @@ async function breast_makePrediction(fname) {
 
 	image = $('#selected-image').get(0);
 
+
 	// Pre-process the image
-	let tensor = tf.fromPixels(image)
+	let tensor = tf.browser.fromPixels(image)
 		.resizeNearestNeighbor([50, 50]) // change the image size here
 		.toFloat()
 		.div(tf.scalar(255.0))
@@ -32,31 +33,23 @@ async function breast_makePrediction(fname) {
 	// data() loads the values of the output tensor and returns
 	// a promise of a typed array when the computation is complete.
 	// Notice the await and async keywords are used together.
-	chrome.extension.onRequest.addListener(function predict(data){
-		console.log(data);
-		model.then(model => {
-			var predictions = model.predict(tf.tensor(data));});
-			});
+	let predictions = await breast_cancer_model.predict(tensor).data();
 	let top5 = Array.from(predictions)
 		.map(function (p, i) { // this is Array.map
 			return {
-				probability: p,
-				className: BREAST_CANCER_CLASSES[i]
+				probability: p
+				// result: p < 0.5 ? 'Normal' : 'Invasive Ductal Carcinoma'
 			};
 
 
-		}).sort(function (a, b) {
-			return b.probability - a.probability;
-
-		}).slice(0, 2);
+		});
 
 	// Append the file name to the prediction list
 	$("#prediction-list").append(`<li class="w3-text-teal">${fname}</li>`);
 
 	//$("#prediction-list").empty();
 	top5.forEach(function (p) {
-
-		$("#prediction-list").append(`<ol>${p.className}: ${p.probability.toFixed(6)}</ol>`);
+		$("#prediction-list").append(`<ol>you have probalility : ${p.probability.toFixed(4) * 100} % chance to  have IDC</ol>`);
 
 
 	});
